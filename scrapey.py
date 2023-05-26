@@ -15,7 +15,7 @@ s = Service(driver_path)
 driver =webdriver.Chrome(service=s,options=options)
 
 # Navigate to the website
-visit ='https://www.smartprix.com/mobiles/smartphone-type/exclude_out_of_stock-exclude_upcoming-stock?sort=price&asc=0'
+visit ='https://www.smartprix.com/mobiles/apple-brand/smartphone-type/exclude_out_of_stock-exclude_upcoming-stock?sort=price&asc=0'
 driver.get(visit)
 
 # Get total number of phones of this brand
@@ -26,7 +26,7 @@ var = int(''.join(filter(str.isdigit, var)))
 for i in range(1, var+1):
     print(i)
     # Calculate the value of var based on the value of i
-    tip = (i - 1) // 20 
+    tip = (i - 1 ) // 20  
     # Navigate to the website
     driver.get(visit)
     # Find the "Load More" button and click it var times to load more phones
@@ -37,16 +37,31 @@ for i in range(1, var+1):
             time.sleep(2) # Wait for the new phones to load
 
     # Find the phone link on the page
-    phone = driver.find_element("xpath",f'//*[@id="app"]/main/div[1]/div[2]/div[2]/div[{i}]/a')
-    url = phone.get_attribute("href")
-    print("Visiting phone:", url)
-    driver.get(url)
+    try:
+        phone = driver.find_element("xpath",f'//*[@id="app"]/main/div[1]/div[2]/div[2]/div[{i}]/a')
+        url = phone.get_attribute("href")
+        print("Visiting phone:", url)
+        driver.get(url)
+    except:
+        print("Link not found")
 
     # Add any additional code to scrape data from each phone's page here
-    phone_name = driver.find_element("xpath",'//*[@id="app"]/main/div[1]/div[2]/div[1]/div[1]/h1').text
-    phone_price = driver.find_element("xpath",'//*[@id="app"]/main/div[1]/div[2]/div[3]/div[1]/div[1]').text
-    image= driver.find_element("xpath",'//*[@id="app"]/main/div[1]/div[1]/div[1]/div[1]/div[1]/img')
-    image_link = image.get_attribute("src")
+    try:
+        phone_name = driver.find_element("xpath",'//*[@id="app"]/main/div[1]/div[2]/div[1]/div[1]/h1').text
+    except:
+        print("Element phone name not found")
+        phone_name = None
+    try:
+        phone_price = driver.find_element("xpath",'//*[@id="app"]/main/div[1]/div[2]/div[3]/div[1]/div[1]').text
+    except:
+        print("Element phone price not found")
+        phone_price = None
+    try:
+        image= driver.find_element("xpath",'//*[@id="app"]/main/div[1]/div[1]/div[1]/div[1]/div[1]/img')
+        image_link = image.get_attribute("src")
+    except:
+        print("Element phone image not found")
+        image_link = None
 
     #buy link 1
     try:
@@ -62,9 +77,12 @@ for i in range(1, var+1):
         link2_href = None
 
     # Click on the "View More Specs" button and extract the data from the popup
-    specs_button = driver.find_element("xpath",'//*[@id="app"]/main/div[3]/div/div[1]/div[5]/a')
-    specs_button.click()
-    time.sleep(2) # Wait for the popup to load
+    try:
+        specs_button = driver.find_element("xpath",'//*[@id="app"]/main/div[3]/div/div[1]/div[5]/a')
+        specs_button.click()
+        time.sleep(2) # Wait for the popup to load
+    except:
+        print("Element specs button not found")
 
     # Add any additional code to scrape data from "View More Specs" here
     specs_data = {}
@@ -82,14 +100,20 @@ for i in range(1, var+1):
                 for row in rows:
                     key = row.find_element("xpath",'.//td[1]').text
                     value = row.find_element("xpath",'.//td[2]').text
+                    original_key = key
+                    count = 1
+                    while key in specs_data:
+                        key = f"{original_key}_{count}"
+                        count += 1
                     specs_data[key] = value
         except:
             print("specs xpath not found")
             specs_data = None
 
+
     # Create a new Excel workbook and sheet, or load existing file and sheet
     try:
-        wb = load_workbook('phones.xlsx')
+        wb = load_workbook('AhShit.xlsx')
         ws = wb.active
         row_count = ws.max_row
     except FileNotFoundError:
@@ -120,7 +144,7 @@ for i in range(1, var+1):
     row_count += 1
 
     # Save the Excel file
-    wb.save('phones.xlsx')
+    wb.save('AhShit.xlsx')
 
 # Close the browser window
 driver.quit()
