@@ -113,7 +113,7 @@ for i in range(1, var+1):
 
     # Create a new Excel workbook and sheet, or load existing file and sheet
     try:
-        wb = load_workbook('AhShit.xlsx')
+        wb = load_workbook('phones.xlsx')
         ws = wb.active
         row_count = ws.max_row
     except FileNotFoundError:
@@ -144,7 +144,7 @@ for i in range(1, var+1):
     row_count += 1
 
     # Save the Excel file
-    wb.save('AhShit.xlsx')
+    wb.save('phones.xlsx')
 
 # Close the browser window
 driver.quit()
